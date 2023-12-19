@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    .chat-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+      overflow-y: auto;
+    }
+
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+      word-wrap: break-word;
+      margin-bottom: 5px;
+    }
+
+    .sent {
+      background-color: #007bff;
+      color: #fff;
+      align-self: flex-start; /* Align user messages to the left */
+      text-align: left;
+    }
+
+    .received {
+      background-color: #e9ecef;
+      color: #333;
+      align-self: flex-end; /* Align other side messages to the right */
+      text-align: right;
+    }
+
+    #input {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    .chat-input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #f8f8f8;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container" id="messages"></div>
+  <div style="display: flex; align-items: center;">
+    <input id="input" class="chat-input" autocomplete="off" />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+  
+    function sendMessage() {
+      const message = document.getElementById('input').value;
+      socket.emit('chat message', { text: message, sender: 'user' });
+      document.getElementById('input').value = '';
+    }
+  
+    socket.on('chat message', function(data) {
+      appendMessage(data.text, data.sender);
+    });
+  
+    function appendMessage(msg, sender) {
+      const messages = document.getElementById('messages');
+      const messageContainer = document.createElement('div');
+      const messageElem = document.createElement('div');
+      messageElem.textContent = msg;
+      messageElem.classList.add('message');
+      
+      messageContainer.classList.add('message-container');
+      if (sender === 'user') {
+        messageElem.classList.add('sent');
+      } else {
+        messageElem.classList.add('received');
+      }
+      
+      messageContainer.appendChild(messageElem);
+      messages.appendChild(messageContainer);
+      
+      messages.scrollTo(0, messages.scrollHeight); // Scroll to bottom
+    }
+  </script>
+</body>
+</html>
